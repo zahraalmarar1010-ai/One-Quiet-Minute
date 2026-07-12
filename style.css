@@ -26,7 +26,7 @@ body, html {
     justify-content: center;
     align-items: center;
     z-index: 10;
-    transition: opacity 5s ease;
+    transition: opacity 2s ease;
 }
 
 .intro h1 {
@@ -70,33 +70,18 @@ body, html {
 
 /* الفيديوهات كطبقات مخفية في البداية */
 .video-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            z-index: 5;
-            transition: opacity 2s ease-in-out;
-        }
-video::-webkit-media-controls {
-    display:none !important;
-}
-video::-webkit-media-controls-start-playback-button {
-    display: none !important; 
-    }
-#text-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    text-align: center;
-    z-index: 50;
-    width: 80%;
-    font-weight: 200;
-}  
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1;
+    transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
 /* كلاس الفيديو النشط المضمون */
 .video-layer.active {
     opacity: 1;
@@ -167,7 +152,4 @@ video::-webkit-media-controls-start-playback-button {
 .final-stack .line-2.show-text {
     opacity: 1;
     transform: translateY(0);
-} 
-video {
-    transition: opacity 3s ease-in-out;
-} 
+}

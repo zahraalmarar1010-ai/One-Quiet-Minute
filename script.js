@@ -1,10 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // جلب عناصر الصفحة الخمسة من الصفحة
     const beginBtn = document.getElementById("begin-btn");
     const introScreen = document.getElementById("intro-screen");
     const textContainer = document.getElementById("text-container");
     const bgMusic = document.getElementById("bg-music");
 
-    const vids = {
+    const videos = {
         galaxy: document.getElementById("vid-galaxy"),
         stars: document.getElementById("vid-stars"),
         earth: document.getElementById("vid-earth"),
@@ -12,118 +13,89 @@ document.addEventListener("DOMContentLoaded", () => {
         sea: document.getElementById("vid-sea")
     };
 
-    // تهيئة جميع الفيديوهات كخلفيات صامتة
-    Object.values(vids).forEach(vid => {
+    // تهيئة المتصفح وتحميل الفيديوهات مسبقاً في الخلفية
+    Object.values(videos).forEach(vid => {
         if (vid) {
             vid.muted = true;
             vid.style.opacity = "0";
-            vid.style.zIndex = "1";
-            vid.playbackRate = 0.55;
-            vid.play().catch(e => console.log("Video prep:", e));
+            vid.load();
         }
     });
-
     if (bgMusic) bgMusic.load();
 
-    function changeText(htmlContent) {
-        textContainer.style.opacity = "0";
-        
+    // دالة لتغيير النصوص وإضافة تأثير الانسيابية
+    function changeText(htmlContent, delayTime = 3000) {
+        textContainer.innerHTML = ""; 
+        if (htmlContent === "") return;
+
+        textContainer.innerHTML = htmlContent;
+
         setTimeout(() => {
-            if (htmlContent === "") {
-                textContainer.innerHTML = "";
-                return;
-            }
-
-            if (!htmlContent.includes("<div") && !htmlContent.includes("<p")) {
-                textContainer.innerHTML = `<p style="font-size: 1.8rem; font-weight: 300; color: #ffffff; margin: 0; text-align: center;">${htmlContent}</p>`;
-            } else {
-                textContainer.innerHTML = htmlContent;
-            }
-
-            // ضمان إظهار النصوص فوق جميع الفيديوهات
-            textContainer.style.zIndex = "999"; 
-            textContainer.style.opacity = "1";
-        }, 400);
+            const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
+            elements.forEach(el => el.classList.add("show-text"));
+        }, delayTime);
     }
 
-    function playScene(activeVid) {
-        Object.values(vids).forEach(vid => {
+    // نظام الانتقال المتقاطع السلس القائم على الشفافية المستمرة
+    function fadeInVideo(activeVid) {
+        Object.values(videos).forEach(vid => {
             if (vid && vid !== activeVid) {
-                vid.style.opacity = "0";
-                vid.style.zIndex = "1";
+                vid.style.opacity = "0"; // التلاشي التدريجي للهبوط
+                vid.style.zIndex = "5";
             }
         });
 
         if (activeVid) {
-            activeVid.style.zIndex = "5";
+            activeVid.style.zIndex = "10"; // رفع الفيديو النشط للأعلى بنعومة
             activeVid.style.opacity = "1";
-            activeVid.muted = true;
-            activeVid.playbackRate = 0.55;
-            activeVid.play().catch(err => console.log("Active vid play error:", err));
         }
     }
 
+    // عند الضغط على زر البدء الرئيسي Begin
     beginBtn.addEventListener("click", () => {
         introScreen.style.opacity = "0";
-        setTimeout(() => {
-            introScreen.style.display = "none";
-        }, 1000);
+        setTimeout(() => introScreen.style.display = "none", 2500);
 
-        // تشغيل صوت الموسيقى عند ضغط زر البداية
         if (bgMusic) {
-            bgMusic.muted = false;
-            bgMusic.volume = 1.0;
-            bgMusic.play().catch(err => console.log("Audio play error:", err));
+            bgMusic.play().catch(err => console.log("Audio error:", err));
         }
 
-        // تسلسل المشاهد
-        playScene(vids.galaxy);
+        // تشغيل كل الفيديوهات معاً في الخلفية لضمان السلاسة المطلقة
+        Object.values(videos).forEach(vid => {
+            if (vid) vid.play().catch(err => console.log("Video init play:", err));
+        });
+
+        // المشهد 1: المجرة الفخمة الجديدة
+        fadeInVideo(videos.galaxy);
         changeText(""); 
-        setTimeout(() => {
-            playScene(vids.stars);
-            changeText("Every story begins with a single light.");
-        }, 6000);
 
+        // المشهد 2: النجوم -> ONE LIGHT
         setTimeout(() => {
-            playScene(vids.earth);
-            changeText("Every journey begins with a choice.");
-        }, 12000);
+            fadeInVideo(videos.stars);
+            changeText("<p class='project-text'>One light</p>", 3000);
+        }, 9000);
 
+        // المشهد 3: الأرض -> ONE JOURNEY
         setTimeout(() => {
-            playScene(vids.city);
+            fadeInVideo(videos.earth);
+            changeText("<p class='project-text'>One journey</p>", 3000);
+        }, 19000);
+
+        // المشهد 4: المدينة
+        setTimeout(() => {
+            fadeInVideo(videos.city);
             changeText("");
-        }, 18000);
+        }, 29000);
 
+        // المشهد 5: البحر الختامي العبارة والتاريخ
         setTimeout(() => {
-            playScene(vids.sea);
+            fadeInVideo(videos.sea);
             changeText(`
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                <p style="font-size:1.8rem;font-weight:300;color:#ffffff;margin:0;text-align:center;">
-                     Sometimes... silence says more than words.
-                </p>
-
-                <p style="font-size:1.4rem;font-weight:200;color:#ffffff;margin-top:18px;text-align:center;letter-spacing:4px;">
-                    13 JULY
-                </p>
-            </div>
-            `);
-                
-        }, 23000);
+                <div class="final-stack">
+                    <p class="line-1">Sometimes... silence says more than words</p>
+                    <p class="line-2">13 July</p>
+                </div>
+            `, 3000);
+        }, 38000);
     });
-
-    if (vids.sea) {
-        vids.sea.onended = () => {
-            let fadeAudio = setInterval(() => {
-                if (bgMusic && bgMusic.volume > 0.1) {
-                    bgMusic.volume -= 0.1;
-                } else {
-                    if (bgMusic) {
-                        bgMusic.pause();
-                        bgMusic.volume = 1.0;
-                    }
-                    clearInterval(fadeAudio);
-                }
-            }, 200);
-        };               
-    }
-}); 
+});
