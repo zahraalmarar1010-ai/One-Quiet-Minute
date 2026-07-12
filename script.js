@@ -47,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (activeVid) {
             activeVid.style.zIndex = "10"; // رفع الفيديو النشط للأعلى بنعومة
-            activeVid.style.opacity = "1";
+            activeVid.style.opacity = "1"; 
+            activeVid.play().catch(error => console.log("Autoplay prevented:", error));
         }
     }
 
