@@ -12,46 +12,54 @@ document.addEventListener("DOMContentLoaded", () => {
         sea: document.getElementById("vid-sea")
     };
 
-    // تهيئة الفيديوهات وتبطيئها كما في كودكِ الأصلي
+    // تهيئة جميع الفيديوهات كخلفيات صامتة
     Object.values(vids).forEach(vid => {
         if (vid) {
-            vid.load();
+            vid.muted = true;
+            vid.style.opacity = "0";
+            vid.style.zIndex = "1";
             vid.playbackRate = 0.55;
+            vid.play().catch(e => console.log("Video prep:", e));
         }
     });
 
     if (bgMusic) bgMusic.load();
 
-    function changeText(htmlContent, delayTime = 1000) {
-        textContainer.innerHTML = "";
-        if (htmlContent === "") return;
-        textContainer.innerHTML = htmlContent;
-
+    function changeText(htmlContent) {
+        textContainer.style.opacity = "0";
+        
         setTimeout(() => {
-            const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
-            elements.forEach(el => el.classList.add("show-text"));
-        }, delayTime);
+            if (htmlContent === "") {
+                textContainer.innerHTML = "";
+                return;
+            }
+
+            if (!htmlContent.includes("<div") && !htmlContent.includes("<p")) {
+                textContainer.innerHTML = `<p style="font-size: 1.8rem; font-weight: 300; color: #ffffff; margin: 0; text-align: center;">${htmlContent}</p>`;
+            } else {
+                textContainer.innerHTML = htmlContent;
+            }
+
+            // ضمان إظهار النصوص فوق جميع الفيديوهات
+            textContainer.style.zIndex = "999"; 
+            textContainer.style.opacity = "1";
+        }, 400);
     }
 
     function playScene(activeVid) {
         Object.values(vids).forEach(vid => {
             if (vid && vid !== activeVid) {
                 vid.style.opacity = "0";
-                vid.style.zIndex = "5";
-                vid.pause();
+                vid.style.zIndex = "1";
             }
         });
 
         if (activeVid) {
-            activeVid.currentTime = 0;
-            activeVid.style.zIndex = "10";
+            activeVid.style.zIndex = "5";
             activeVid.style.opacity = "1";
+            activeVid.muted = true;
             activeVid.playbackRate = 0.55;
-            
-            var playPromise = activeVid.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => console.log("Video play error:", err));
-            }
+            activeVid.play().catch(err => console.log("Active vid play error:", err));
         }
     }
 
@@ -59,45 +67,45 @@ document.addEventListener("DOMContentLoaded", () => {
         introScreen.style.opacity = "0";
         setTimeout(() => {
             introScreen.style.display = "none";
-        }, 2500);
+        }, 1000);
 
-        // تشغيل صوت الموسيقى الخلفية فوراً عند الضغط لتخطي حظر الآيفون
+        // تشغيل صوت الموسيقى عند ضغط زر البداية
         if (bgMusic) {
             bgMusic.muted = false;
-            bgMusic.play().catch(err => console.log("Music play blocked:", err));
+            bgMusic.volume = 1.0;
+            bgMusic.play().catch(err => console.log("Audio play error:", err));
         }
 
-        // تسلسل المشاهد والأوقات
+        // تسلسل المشاهد
         playScene(vids.galaxy);
-        changeText("Look up...", 1000);
+        changeText("Look up...");
 
         setTimeout(() => {
             playScene(vids.stars);
-            changeText("The universe is moving.", 1000);
+            changeText("The universe is moving.");
         }, 6000);
 
         setTimeout(() => {
             playScene(vids.earth);
-            changeText("And so are you.", 1000);
+            changeText("And so are you.");
         }, 12000);
 
         setTimeout(() => {
             playScene(vids.city);
-            changeText("", 1000);
+            changeText("");
         }, 18000);
 
         setTimeout(() => {
             playScene(vids.sea);
             changeText(`
-                <div class="final-stack">
-                    <p class="line-1">Sometimes... silence says more than words</p>
-                    <p class="line-2">13 July</p>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <p style="font-size: 1.8rem; font-weight: 300; color: #ffffff; margin: 0; text-align: center;">Sometimes... silence says more than words</p>
+                    <p style="font-size: 1.4rem; font-weight: 200; color: #ffffff; margin-top: 15px; text-align: center;">13 July</p>
                 </div>
-            `, 1000);
+            `);
         }, 23000);
     });
 
-    // تلاشي الصوت تدريجياً عند نهاية فيديو البحر كما في كودكِ الأصلي
     if (vids.sea) {
         vids.sea.onended = () => {
             let fadeAudio = setInterval(() => {
