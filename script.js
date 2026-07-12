@@ -2,8 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const beginBtn = document.getElementById("begin-btn");
     const introScreen = document.getElementById("intro-screen");
     const textContainer = document.getElementById("text-container");
+    const bgMusic = document.getElementById("bg-music");
 
-    const videos = {
+    const vids = {
         galaxy: document.getElementById("vid-galaxy"),
         stars: document.getElementById("vid-stars"),
         earth: document.getElementById("vid-earth"),
@@ -11,46 +12,45 @@ document.addEventListener("DOMContentLoaded", () => {
         sea: document.getElementById("vid-sea")
     };
 
-    function changeText(htmlContent, duration) {
-        textContainer.style.opacity = "0";
-        setTimeout(() => {
-            textContainer.innerHTML = htmlContent;
-            textContainer.style.opacity = "1";
-            
-            const l1 = textContainer.querySelector('.line-1');
-            const l2 = textContainer.querySelector('.line-2');
-            if(l1) setTimeout(() => l1.classList.add('show-text'), 50);
-            if(l2) setTimeout(() => l2.classList.add('show-text'), 1050);
+    // تهيئة الفيديوهات وتبطيئها كما في كودكِ الأصلي
+    Object.values(vids).forEach(vid => {
+        if (vid) {
+            vid.load();
+            vid.playbackRate = 0.55;
+        }
+    });
 
-            if (duration) {
-                setTimeout(() => {
-                    textContainer.style.opacity = "0";
-                }, duration);
-            }
-        }, 1000);
+    if (bgMusic) bgMusic.load();
+
+    function changeText(htmlContent, delayTime = 1000) {
+        textContainer.innerHTML = "";
+        if (htmlContent === "") return;
+        textContainer.innerHTML = htmlContent;
+
+        setTimeout(() => {
+            const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
+            elements.forEach(el => el.classList.add("show-text"));
+        }, delayTime);
     }
 
-    // دالة التنقل الآمنة لحل مشكلة الآيفون داخل النطاق الصحيح
-    function fadeInVideo(activeVid) {
-        Object.values(videos).forEach(vid => {
+    function playScene(activeVid) {
+        Object.values(vids).forEach(vid => {
             if (vid && vid !== activeVid) {
                 vid.style.opacity = "0";
                 vid.style.zIndex = "5";
-                vid.pause(); 
+                vid.pause();
             }
         });
 
         if (activeVid) {
+            activeVid.currentTime = 0;
             activeVid.style.zIndex = "10";
             activeVid.style.opacity = "1";
+            activeVid.playbackRate = 0.55;
             
             var playPromise = activeVid.play();
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Auto-play prevented, retrying muted:", error);
-                    activeVid.muted = true;
-                    activeVid.play();
-                });
+                playPromise.catch(err => console.log("Video play error:", err));
             }
         }
     }
@@ -61,37 +61,56 @@ document.addEventListener("DOMContentLoaded", () => {
             introScreen.style.display = "none";
         }, 2500);
 
-        // المشهد 1: المجرة العبارة الأولى
-        fadeInVideo(videos.galaxy);
-        changeText("Look up...", 5000);
+        // تشغيل صوت الموسيقى الخلفية فوراً عند الضغط لتخطي حظر الآيفون
+        if (bgMusic) {
+            bgMusic.muted = false;
+            bgMusic.play().catch(err => console.log("Music play blocked:", err));
+        }
 
-        // المشهد 2: النجوم والعبارة الثانية
-        setTimeout(() => {
-            fadeInVideo(videos.stars);
-            changeText("The universe is moving.", 5000);
-        }, 9000);
+        // تسلسل المشاهد والأوقات
+        playScene(vids.galaxy);
+        changeText("Look up...", 1000);
 
-        // المشهد 3: كوكب الأرض والعبارة الثالثة
         setTimeout(() => {
-            fadeInVideo(videos.earth);
-            changeText("And so are you.", 5000);
-        }, 19000);
+            playScene(vids.stars);
+            changeText("The universe is moving.", 1000);
+        }, 6000);
 
-        // المشهد 4: المدينة بدون عبارة
         setTimeout(() => {
-            fadeInVideo(videos.city);
-            changeText("", 29000);
-        }, 29000);
+            playScene(vids.earth);
+            changeText("And so are you.", 1000);
+        }, 12000);
 
-        // المشهد 5: البحر والعبارة الختامية مع التاريخ
         setTimeout(() => {
-            fadeInVideo(videos.sea);
+            playScene(vids.city);
+            changeText("", 1000);
+        }, 18000);
+
+        setTimeout(() => {
+            playScene(vids.sea);
             changeText(`
                 <div class="final-stack">
                     <p class="line-1">Sometimes... silence says more than words</p>
                     <p class="line-2">13 July</p>
                 </div>
-            `, 3000);
-        }, 38000);
+            `, 1000);
+        }, 23000);
     });
+
+    // تلاشي الصوت تدريجياً عند نهاية فيديو البحر كما في كودكِ الأصلي
+    if (vids.sea) {
+        vids.sea.onended = () => {
+            let fadeAudio = setInterval(() => {
+                if (bgMusic && bgMusic.volume > 0.1) {
+                    bgMusic.volume -= 0.1;
+                } else {
+                    if (bgMusic) {
+                        bgMusic.pause();
+                        bgMusic.volume = 1.0;
+                    }
+                    clearInterval(fadeAudio);
+                }
+            }, 200);
+        };
+    }
 }); 
