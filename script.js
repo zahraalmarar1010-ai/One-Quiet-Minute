@@ -72,13 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // المشهد 2: النجوم -> ONE LIGHT
         setTimeout(() => {
             fadeInVideo(videos.stars);
-            changeText("<p class='project-text'>One light</p>", 3000);
+            changeText("<p class='project-text'>Every story begins with a single light.</p>", 5000);
         }, 9000);
 
         // المشهد 3: الأرض -> ONE JOURNEY
         setTimeout(() => {
             fadeInVideo(videos.earth);
-            changeText("<p class='project-text'>One journey</p>", 3000);
+            changeText("<p class='project-text'>Every journey begins with a choice.</p>", 5000);
         }, 19000);
 
         // المشهد 4: المدينة
