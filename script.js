@@ -1,9 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // جلب عناصر الصفحة الخمسة من الصفحة
     const beginBtn = document.getElementById("begin-btn");
     const introScreen = document.getElementById("intro-screen");
     const textContainer = document.getElementById("text-container");
-    const bgMusic = document.getElementById("bg-music");
 
     const videos = {
         galaxy: document.getElementById("vid-galaxy"),
@@ -13,82 +11,79 @@ document.addEventListener("DOMContentLoaded", () => {
         sea: document.getElementById("vid-sea")
     };
 
-    // تهيئة المتصفح وتحميل الفيديوهات مسبقاً في الخلفية
-    Object.values(videos).forEach(vid => {
-        if (vid) {
-            vid.muted = true;
-            vid.style.opacity = "0";
-            vid.load();
-        }
-    });
-    if (bgMusic) bgMusic.load();
-
-    // دالة لتغيير النصوص وإضافة تأثير الانسيابية
-    function changeText(htmlContent, delayTime = 3000) {
-        textContainer.innerHTML = ""; 
-        if (htmlContent === "") return;
-
-        textContainer.innerHTML = htmlContent;
-
+    function changeText(htmlContent, duration) {
+        textContainer.style.opacity = "0";
         setTimeout(() => {
-            const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
-            elements.forEach(el => el.classList.add("show-text"));
-        }, delayTime);
+            textContainer.innerHTML = htmlContent;
+            textContainer.style.opacity = "1";
+            
+            const l1 = textContainer.querySelector('.line-1');
+            const l2 = textContainer.querySelector('.line-2');
+            if(l1) setTimeout(() => l1.classList.add('show-text'), 50);
+            if(l2) setTimeout(() => l2.classList.add('show-text'), 1050);
+
+            if (duration) {
+                setTimeout(() => {
+                    textContainer.style.opacity = "0";
+                }, duration);
+            }
+        }, 1000);
     }
 
-    // نظام الانتقال المتقاطع السلس القائم على الشفافية المستمرة
+    // دالة التنقل الآمنة لحل مشكلة الآيفون داخل النطاق الصحيح
     function fadeInVideo(activeVid) {
         Object.values(videos).forEach(vid => {
             if (vid && vid !== activeVid) {
-                vid.style.opacity = "0"; // التلاشي التدريجي للهبوط
+                vid.style.opacity = "0";
                 vid.style.zIndex = "5";
+                vid.pause(); 
             }
         });
 
         if (activeVid) {
-            activeVid.style.zIndex = "10"; // رفع الفيديو النشط للأعلى بنعومة
-            activeVid.style.opacity = "1"; 
-            activeVid.play().catch(error => console.log("Autoplay prevented:", error));
+            activeVid.style.zIndex = "10";
+            activeVid.style.opacity = "1";
+            
+            var playPromise = activeVid.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Auto-play prevented, retrying muted:", error);
+                    activeVid.muted = true;
+                    activeVid.play();
+                });
+            }
         }
     }
 
-    // عند الضغط على زر البدء الرئيسي Begin
     beginBtn.addEventListener("click", () => {
         introScreen.style.opacity = "0";
-        setTimeout(() => introScreen.style.display = "none", 2500);
+        setTimeout(() => {
+            introScreen.style.display = "none";
+        }, 2500);
 
-        if (bgMusic) {
-            bgMusic.play().catch(err => console.log("Audio error:", err));
-        }
-
-        // تشغيل كل الفيديوهات معاً في الخلفية لضمان السلاسة المطلقة
-        Object.values(videos).forEach(vid => {
-            if (vid) vid.play().catch(err => console.log("Video init play:", err));
-        });
-
-        // المشهد 1: المجرة الفخمة الجديدة
+        // المشهد 1: المجرة العبارة الأولى
         fadeInVideo(videos.galaxy);
-        changeText(""); 
+        changeText("Look up...", 5000);
 
-        // المشهد 2: النجوم -> ONE LIGHT
+        // المشهد 2: النجوم والعبارة الثانية
         setTimeout(() => {
             fadeInVideo(videos.stars);
-            changeText("<p class='project-text'>One light</p>", 3000);
+            changeText("The universe is moving.", 5000);
         }, 9000);
 
-        // المشهد 3: الأرض -> ONE JOURNEY
+        // المشهد 3: كوكب الأرض والعبارة الثالثة
         setTimeout(() => {
             fadeInVideo(videos.earth);
-            changeText("<p class='project-text'>One journey</p>", 3000);
+            changeText("And so are you.", 5000);
         }, 19000);
 
-        // المشهد 4: المدينة
+        // المشهد 4: المدينة بدون عبارة
         setTimeout(() => {
             fadeInVideo(videos.city);
-            changeText("");
+            changeText("", 29000);
         }, 29000);
 
-        // المشهد 5: البحر الختامي العبارة والتاريخ
+        // المشهد 5: البحر والعبارة الختامية مع التاريخ
         setTimeout(() => {
             fadeInVideo(videos.sea);
             changeText(`
@@ -100,27 +95,3 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 38000);
     });
 }); 
-function fadeInVideo(activeVid) {
-    Object.values(videos).forEach(vid => {
-        if (vid && vid !== activeVid) {
-            vid.style.opacity = "0";
-            vid.style.zIndex = "5";
-            vid.pause(); // نوقف الفيديو المخفي عشان ما يثقل الجهاز
-        }
-    });
-
-    if (activeVid) {
-        activeVid.style.zIndex = "10";
-        activeVid.style.opacity = "1";
-        
-        // محاولة تشغيل الفيديو بشكل آمن يتماشى مع سياسة الآيفون
-        var playPromise = activeVid.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.log("Auto-play prevented, retrying muted:", error);
-                activeVid.muted = true;
-                activeVid.play();
-            });
-        }
-    }
-}
