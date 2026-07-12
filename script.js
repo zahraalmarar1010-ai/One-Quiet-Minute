@@ -100,3 +100,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 38000);
     });
 }); 
+function fadeInVideo(activeVid) {
+    Object.values(videos).forEach(vid => {
+        if (vid && vid !== activeVid) {
+            vid.style.opacity = "0";
+            vid.style.zIndex = "5";
+            vid.pause(); // نوقف الفيديو المخفي عشان ما يثقل الجهاز
+        }
+    });
+
+    if (activeVid) {
+        activeVid.style.zIndex = "10";
+        activeVid.style.opacity = "1";
+        
+        // محاولة تشغيل الفيديو بشكل آمن يتماشى مع سياسة الآيفون
+        var playPromise = activeVid.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Auto-play prevented, retrying muted:", error);
+                activeVid.muted = true;
+                activeVid.play();
+            });
+        }
+    }
+}
