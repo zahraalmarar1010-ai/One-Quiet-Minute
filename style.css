@@ -26,7 +26,7 @@ body, html {
     justify-content: center;
     align-items: center;
     z-index: 10;
-    transition: opacity 2s ease;
+    transition: opacity 5s ease;
 }
 
 .intro h1 {
@@ -152,4 +152,7 @@ body, html {
 .final-stack .line-2.show-text {
     opacity: 1;
     transform: translateY(0);
-}
+} 
+video {
+    transition: opacity 3s ease-in-out;
+} 
