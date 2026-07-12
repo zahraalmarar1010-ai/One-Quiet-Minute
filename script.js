@@ -78,16 +78,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // تسلسل المشاهد
         playScene(vids.galaxy);
-        changeText("Look up...");
-
+        changeText(""); 
         setTimeout(() => {
             playScene(vids.stars);
-            changeText("The universe is moving.");
+            changeText("Every story begins with a single light.");
         }, 6000);
 
         setTimeout(() => {
             playScene(vids.earth);
-            changeText("And so are you.");
+            changeText("Every journey begins with a choice.");
         }, 12000);
 
         setTimeout(() => {
@@ -98,11 +97,17 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             playScene(vids.sea);
             changeText(`
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <p style="font-size: 1.8rem; font-weight: 300; color: #ffffff; margin: 0; text-align: center;">Sometimes... silence says more than words</p>
-                    <p style="font-size: 1.4rem; font-weight: 200; color: #ffffff; margin-top: 15px; text-align: center;">13 July</p>
-                </div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <p style="font-size:1.8rem;font-weight:300;color:#ffffff;margin:0;text-align:center;">
+                     Sometimes... silence says more than words.
+                </p>
+
+                <p style="font-size:1.4rem;font-weight:200;color:#ffffff;margin-top:18px;text-align:center;letter-spacing:4px;">
+                    13 JULY
+                </p>
+            </div>
             `);
+                
         }, 23000);
     });
 
@@ -119,6 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     clearInterval(fadeAudio);
                 }
             }, 200);
-        };
+        };               
     }
 }); 
