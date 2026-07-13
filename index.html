@@ -33,7 +33,7 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
-            transition: opacity 2.5s ease-in-out;
+            transition: opacity 2s ease-in-out;
         }
         .intro h1 {
             color: #fff;
@@ -82,7 +82,7 @@
             object-fit: cover; 
             opacity: 0;
             z-index: 5;
-            transition: opacity 2.5s ease-in-out; 
+            transition: opacity 2s ease-in-out; 
         }
 
         .overlay-msg {
@@ -98,9 +98,9 @@
         
         .project-text {
             color: #fff;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 400;
-            letter-spacing: 5px;
+            letter-spacing: 4px;
             text-transform: uppercase;
             opacity: 0;
             transition: opacity 2s ease-in-out; 
@@ -146,7 +146,7 @@
 
         @media (max-width: 768px) {
             .intro h1 { font-size: 1.8rem; letter-spacing: 3px; }
-            .project-text { font-size: 1.5rem; letter-spacing: 3px; }
+            .project-text { font-size: 1.3rem; letter-spacing: 2px; }
             .final-stack .line-1 { font-size: 1.1rem; letter-spacing: 1px; width: 90%; margin: 0 auto; }
             .final-stack .line-2 { font-size: 1.1rem; letter-spacing: 3px; }
             .overlay-msg { bottom: 28%; }
@@ -161,13 +161,13 @@
     </div>
 
     <div id="space-container">
-        <video id="vid-galaxy" class="video-layer" src="assets/videos/space.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-        <video id="vid-stars" class="video-layer" src="assets/videos/star.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-        <video id="vid-earth" class="video-layer" src="assets/videos/earth.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-        <video id="vid-city" class="video-layer" src="assets/videos/city.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-        <video id="vid-sea" class="video-layer" src="assets/videos/sea.mp4" muted playsinline webkit-playsinline preload="auto"></video>
+        <video id="vid-galaxy" class="video-layer" src="assets/videos/space.mp4" muted playsinline webkit-playsinline></video>
+        <video id="vid-stars" class="video-layer" src="assets/videos/star.mp4" muted playsinline webkit-playsinline></video>
+        <video id="vid-earth" class="video-layer" src="assets/videos/earth.mp4" muted playsinline webkit-playsinline></video>
+        <video id="vid-city" class="video-layer" src="assets/videos/city.mp4" muted playsinline webkit-playsinline></video>
+        <video id="vid-sea" class="video-layer" src="assets/videos/sea.mp4" muted playsinline webkit-playsinline></video>
 
-        <audio id="bg-music" src="assets/audio/music.mp3" preload="auto"></audio>
+        <audio id="bg-music" src="assets/audio/music.mp3"></audio>
 
         <div class="overlay-msg" id="text-container"></div>
     </div>
@@ -187,112 +187,89 @@
                 sea: document.getElementById("vid-sea")
             };
 
-            Object.values(vids).forEach(vid => {
-                if (vid) {
-                    vid.load();
-                    vid.playbackRate = 0.55; 
-                }
-            });
-            if (bgMusic) bgMusic.load();
-
-            function changeText(htmlContent, delayTime = 1000) {
+            function changeText(htmlContent) {
                 textContainer.innerHTML = ""; 
-                if (htmlContent === "") return;
+                if (!htmlContent) return;
 
                 textContainer.innerHTML = htmlContent;
-
                 setTimeout(() => {
                     const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
                     elements.forEach(el => el.classList.add("show-text"));
-                }, delayTime);
+                }, 300);
             }
 
             function playScene(activeVid) {
-                if (activeVid) {
-                    if (activeVid.readyState >= 2) {
-                        activeVid.currentTime = 0;
+                if (!activeVid) return;
+
+                Object.values(vids).forEach(vid => {
+                    if (vid && vid !== activeVid) {
+                        vid.style.opacity = "0";
+                        vid.style.zIndex = "5";
                     }
-                    activeVid.style.zIndex = "10";
-                    activeVid.style.opacity = "1";
-                    activeVid.playbackRate = 0.55; 
-                    
-                    activeVid.play().catch(err => console.log("Video play error:", err));
-                    
-                    setTimeout(() => {
-                        Object.values(vids).forEach(vid => {
-                            if (vid && vid !== activeVid) {
-                                vid.style.opacity = "0";
-                                vid.style.zIndex = "5";
-                            }
-                        });
-                    }, 800);
-                }
+                });
+
+                activeVid.style.zIndex = "10";
+                activeVid.style.opacity = "1";
+                activeVid.playbackRate = 0.55;
+                
+                // إجبار التشغيل المباشر
+                activeVid.currentTime = 0;
+                activeVid.play().catch(err => console.log(err));
             }
 
             beginBtn.addEventListener("click", () => {
+                // 1. إخفاء شاشة البداية
                 introScreen.style.opacity = "0";
-                setTimeout(() => introScreen.style.display = "none", 2000);
+                setTimeout(() => introScreen.style.display = "none", 1500);
 
+                // 2. تشغيل الموسيقى
                 if (bgMusic) {
                     bgMusic.play().catch(err => console.log("Audio error:", err));
                 }
 
+                // 3. تجهيز الفيديوهات بتشغيل صامت سريع جداً لفك الحظر عن الآيفون
+                Object.values(vids).forEach(vid => {
+                    if (vid) {
+                        vid.play().then(() => vid.pause()).catch(() => {});
+                    }
+                });
+
+                // --- الجدول الزمني المستقر (التنقل التلقائي) ---
+
+                // المشهد 1: المجرة (فوراً)
                 playScene(vids.galaxy);
                 changeText("");
 
-                let galaxyTriggered = false;
-                vids.galaxy.addEventListener("timeupdate", () => {
-                    if (vids.galaxy.currentTime >= vids.galaxy.duration - 3 && !galaxyTriggered) {
-                        galaxyTriggered = true;
-                        playScene(vids.stars);
-                        changeText("<p class='project-text'>Every story begins with a single light.</p>", 5000);
-                    }
-                });
+                // المشهد 2: النجوم + العبارة الأولى (بعد 6 ثوانٍ)
+                setTimeout(() => {
+                    playScene(vids.stars);
+                    changeText("<p class='project-text'>Every story begins with a single light.</p>");
+                }, 6000);
 
-                let starsTriggered = false;
-                vids.stars.addEventListener("timeupdate", () => {
-                    if (vids.stars.currentTime >= vids.stars.duration - 3 && !starsTriggered) {
-                        starsTriggered = true;
-                        playScene(vids.earth);
-                        changeText("<p class='project-text'>Every journey begins with a choice.</p>", 5000);
-                    }
-                });
+                // المشهد 3: الأرض + العبارة الثانية (بعد 12 ثانية)
+                setTimeout(() => {
+                    playScene(vids.earth);
+                    changeText("<p class='project-text'>Every journey begins with a choice.</p>");
+                }, 12000);
 
-                let earthTriggered = false;
-                vids.earth.addEventListener("timeupdate", () => {
-                    if (vids.earth.currentTime >= vids.earth.duration - 3 && !earthTriggered) {
-                        earthTriggered = true;
-                        playScene(vids.city);
-                        changeText("");
-                    }
-                });
+                // المشهد 4: المدينة بدون نص (بعد 18 ثانية)
+                setTimeout(() => {
+                    playScene(vids.city);
+                    changeText("");
+                }, 18000);
 
-                let cityTriggered = false;
-                vids.city.addEventListener("timeupdate", () => {
-                    if (vids.city.currentTime >= vids.city.duration - 3 && !cityTriggered) {
-                        cityTriggered = true;
-                        playScene(vids.sea);
-                        changeText(`
-                            <div class="final-stack">
-                                <p class="line-1">Sometimes... silence says more than words</p>
-                                <p class="line-2">13 July</p>
-                            </div>
-                        `, 2000);
-                    }
-                });
-
-                vids.sea.onended = () => {
-                    let fadeAudio = setInterval(() => {
-                        if (bgMusic.volume > 0.1) {
-                            bgMusic.volume -= 0.1;
-                        } else {
-                            clearInterval(fadeAudio);
-                            bgMusic.pause();
-                        }
-                    }, 100);
-                };
+                // المشهد 5: البحر + النص النهائي والتاريخ (بعد 24 ثانية)
+                setTimeout(() => {
+                    playScene(vids.sea);
+                    changeText(`
+                        <div class="final-stack">
+                            <p class="line-1">Sometimes... silence says more than words</p>
+                            <p class="line-2">13 July</p>
+                        </div>
+                    `);
+                }, 24000);
             });
         });
     </script>
 </body>
-</html>
+</html> 
