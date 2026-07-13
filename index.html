@@ -209,7 +209,9 @@
 
             function playScene(activeVid) {
                 if (activeVid) {
-                    activeVid.currentTime = 0;
+                    if (activeVid.readyState >= 2) {
+                        activeVid.currentTime = 0;
+                    }
                     activeVid.style.zIndex = "10";
                     activeVid.style.opacity = "1";
                     activeVid.playbackRate = 0.55; 

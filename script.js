@@ -101,4 +101,4 @@ document.addEventListener("DOMContentLoaded", () => {
             `, 3000);
         }, 38000);
     });
-});
+}); 
