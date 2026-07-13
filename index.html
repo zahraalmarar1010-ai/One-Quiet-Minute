@@ -161,11 +161,12 @@
     </div>
 
     <div id="space-container">
-        <video id="vid-galaxy" class="video-layer" src="assets/videos/space.mp4" muted playsinline webkit-playsinline></video>
-        <video id="vid-stars" class="video-layer" src="assets/videos/star.mp4" muted playsinline webkit-playsinline></video>
-        <video id="vid-earth" class="video-layer" src="assets/videos/earth.mp4" muted playsinline webkit-playsinline></video>
-        <video id="vid-city" class="video-layer" src="assets/videos/city.mp4" muted playsinline webkit-playsinline></video>
-        <video id="vid-sea" class="video-layer" src="assets/videos/sea.mp4" muted playsinline webkit-playsinline></video>
+        <!-- أضفنا خاصية loop لضمان استمرار الفيديوهات دون توقف مفاجئ -->
+        <video id="vid-galaxy" class="video-layer" src="assets/videos/space.mp4" muted playsinline webkit-playsinline loop></video>
+        <video id="vid-stars" class="video-layer" src="assets/videos/star.mp4" muted playsinline webkit-playsinline loop></video>
+        <video id="vid-earth" class="video-layer" src="assets/videos/earth.mp4" muted playsinline webkit-playsinline loop></video>
+        <video id="vid-city" class="video-layer" src="assets/videos/city.mp4" muted playsinline webkit-playsinline loop></video>
+        <video id="vid-sea" class="video-layer" src="assets/videos/sea.mp4" muted playsinline webkit-playsinline loop></video>
 
         <audio id="bg-music" src="assets/audio/music.mp3"></audio>
 
@@ -187,6 +188,11 @@
                 sea: document.getElementById("vid-sea")
             };
 
+            // ضبط سرعة التشغيل المبدئية لجميع الفيديوهات
+            Object.values(vids).forEach(vid => {
+                if (vid) vid.playbackRate = 0.55;
+            });
+
             function changeText(htmlContent) {
                 textContainer.innerHTML = ""; 
                 if (!htmlContent) return;
@@ -198,69 +204,64 @@
                 }, 300);
             }
 
-            function playScene(activeVid) {
-                if (!activeVid) return;
-
+            // دالة إظهار وإخفاء بصرية سريعة ومضمونة للآيفون
+            function showScene(activeVid) {
                 Object.values(vids).forEach(vid => {
-                    if (vid && vid !== activeVid) {
-                        vid.style.opacity = "0";
-                        vid.style.zIndex = "5";
+                    if (vid) {
+                        if (vid === activeVid) {
+                            vid.style.zIndex = "10";
+                            vid.style.opacity = "1";
+                        } else {
+                            vid.style.zIndex = "5";
+                            vid.style.opacity = "0";
+                        }
                     }
                 });
-
-                activeVid.style.zIndex = "10";
-                activeVid.style.opacity = "1";
-                activeVid.playbackRate = 0.55;
-                
-                // إجبار التشغيل المباشر
-                activeVid.currentTime = 0;
-                activeVid.play().catch(err => console.log(err));
             }
 
             beginBtn.addEventListener("click", () => {
-                // 1. إخفاء شاشة البداية
                 introScreen.style.opacity = "0";
                 setTimeout(() => introScreen.style.display = "none", 1500);
 
-                // 2. تشغيل الموسيقى
                 if (bgMusic) {
                     bgMusic.play().catch(err => console.log("Audio error:", err));
                 }
 
-                // 3. تجهيز الفيديوهات بتشغيل صامت سريع جداً لفك الحظر عن الآيفون
+                // السر الفتاك للآيفون: تشغيل كل الفيديوهات معاً فوراً بضغطة واحدة لفك الحظر والتعليق
                 Object.values(vids).forEach(vid => {
                     if (vid) {
-                        vid.play().then(() => vid.pause()).catch(() => {});
+                        vid.currentTime = 0;
+                        vid.play().catch(err => console.log(err));
                     }
                 });
 
-                // --- الجدول الزمني المستقر (التنقل التلقائي) ---
-
-                // المشهد 1: المجرة (فوراً)
-                playScene(vids.galaxy);
+                // تسلسل الانتقالات البصرية الصافية (مستحيل يعلق)
+                
+                // 1. مشهد المجرة (فوراً)
+                showScene(vids.galaxy);
                 changeText("");
 
-                // المشهد 2: النجوم + العبارة الأولى (بعد 6 ثوانٍ)
+                // 2. مشهد النجوم (بعد 6 ثوانٍ)
                 setTimeout(() => {
-                    playScene(vids.stars);
+                    showScene(vids.stars);
                     changeText("<p class='project-text'>Every story begins with a single light.</p>");
                 }, 6000);
 
-                // المشهد 3: الأرض + العبارة الثانية (بعد 12 ثانية)
+                // 3. مشهد الأرض (بعد 12 ثانية)
                 setTimeout(() => {
-                    playScene(vids.earth);
+                    showScene(vids.earth);
                     changeText("<p class='project-text'>Every journey begins with a choice.</p>");
                 }, 12000);
 
-                // المشهد 4: المدينة بدون نص (بعد 18 ثانية)
+                // 4. مشهد المدينة (بعد 18 ثانية)
                 setTimeout(() => {
-                    playScene(vids.city);
+                    showScene(vids.city);
                     changeText("");
                 }, 18000);
 
-                // المشهد 5: البحر + النص النهائي والتاريخ (بعد 24 ثانية)
+                // 5. مشهد البحر والنص النهائي (بعد 24 ثانية)
                 setTimeout(() => {
-                    playScene(vids.sea);
+                    showScene(vids.sea);
                     changeText(`
                         <div class="final-stack">
                             <p class="line-1">Sometimes... silence says more than words</p>
