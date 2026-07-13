@@ -24,17 +24,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bgMusic) bgMusic.load();
 
     // دالة لتغيير النصوص وإضافة تأثير الانسيابية
-    function changeText(htmlContent, delayTime = 3000) {
-        textContainer.innerHTML = ""; 
-        if (htmlContent === "") return;
+    function changeText(htmlContent, delayTime = 0) {
 
-        textContainer.innerHTML = htmlContent;
+    textContainer.innerHTML = "";
 
-        setTimeout(() => {
-            const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
-            elements.forEach(el => el.classList.add("show-text"));
-        }, delayTime);
-    }
+    if (htmlContent === "") return;
+
+    textContainer.innerHTML = htmlContent;
+
+    requestAnimationFrame(() => {
+        const elements = textContainer.querySelectorAll(".project-text, .line-1, .line-2");
+        elements.forEach(el => el.classList.add("show-text"));
+    });
+
+}
 
     // نظام الانتقال المتقاطع السلس القائم على الشفافية المستمرة
     function fadeInVideo(activeVid) {
@@ -72,13 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // المشهد 2: النجوم -> ONE LIGHT
         setTimeout(() => {
             fadeInVideo(videos.stars);
-            changeText("<p class='project-text'>Every story begins with a single light.</p>", 5000);
+            changeText("<p class='project-text'>Every story begins with a single light.</p>", 1000);
         }, 9000);
 
         // المشهد 3: الأرض -> ONE JOURNEY
         setTimeout(() => {
             fadeInVideo(videos.earth);
-            changeText("<p class='project-text'>Every journey begins with a choice.</p>", 5000);
+            changeText("<p class='project-text'>Every journey begins with a choice.</p>", 1000);
         }, 19000);
 
         // المشهد 4: المدينة
